@@ -84,8 +84,8 @@ class SignalHandler:
 if __name__ == "__main__":
 
     AWS_REGION='us-east-1'
-    AWS_ACCESS_KEY="AKIA3DVXYSAZCAPOFO4E"
-    AWS_SECRET_ACCESS_KEY="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"
+    AWS_ACCESS_KEY=""
+    AWS_SECRET_ACCESS_KEY=""
 
     INPUT_QUEUE_NAME="AlekhyaFirstQueue"
     OUTPUT_QUEUE_NAME="AlekhyaSecondQueue"
