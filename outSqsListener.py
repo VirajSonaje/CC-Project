@@ -1,6 +1,45 @@
+import threading
 import boto3
 from signal import SIGINT, SIGTERM, signal
 import json
+
+globalMap = {}
+
+class outSqsLitener(threading.Thread):
+    def __init__(self, name):
+        threading.Thread.__init__(self)
+        self.name = name
+    
+    def run(self):
+        AWS_REGION='us-east-1'
+        AWS_ACCESS_KEY="AKIAQXBVY5HVCRFALTEM"
+        AWS_SECRET_ACCESS_KEY="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"
+
+        INPUT_QUEUE_NAME="InputQueue"
+        OUTPUT_QUEUE_NAME="OutputQueue"
+
+        MESSAGE_ATTRIBUTES=['ImageName','UID']
+
+        sqs = boto3.resource("sqs",region_name=AWS_REGION, aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+        input_queue = sqs.get_queue_by_name(QueueName=INPUT_QUEUE_NAME)
+        output_queue = sqs.get_queue_by_name(QueueName=OUTPUT_QUEUE_NAME)
+
+        while True:
+            messages = output_queue.receive_messages(MaxNumberOfMessages=10, WaitTimeSeconds=10, MessageAttributeNames=MESSAGE_ATTRIBUTES)
+            for message in messages:
+                try:
+                    result=process_message(message)
+                except Exception as e:
+                    print(f"exception while processing message: {repr(e)}")
+                    continue
+            
+                try:
+                    message.delete()
+                    print("Deleted message")
+                except Exception as e:
+                    print(f"exception while deleting message: {repr(e)}")
+                    continue
+
 
 def process_message(message):
     #print(dir(message))
@@ -29,12 +68,14 @@ def process_message(message):
     #TO DO
     #Store result in global map
     result = {uid: label}
+    globalMap[uid] = label
+    print(globalMap)
 
-    with open("globalMap.json", "r+") as file:
-        data = json.load(file)
-        data.update(result)
-        file.seek(0)
-        json.dump(data, file)
+    # with open("globalMap.json", "r+") as file:
+    #     data = json.load(file)
+    #     data.update(result)
+    #     file.seek(0)
+    #     json.dump(data, file)
 
 
     return result
@@ -49,34 +90,34 @@ class SignalHandler:
         print(f"handling signal {signal}, exiting gracefully")
         self.received_signal = True
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    AWS_REGION='us-east-1'
-    AWS_ACCESS_KEY=""
-    AWS_SECRET_ACCESS_KEY=""
+#     AWS_REGION='us-east-1'
+#     AWS_ACCESS_KEY="AKIAQXBVY5HVCRFALTEM"
+#     AWS_SECRET_ACCESS_KEY="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"
 
-    INPUT_QUEUE_NAME="AlekhyaFirstQueue"
-    OUTPUT_QUEUE_NAME="AlekhyaSecondQueue"
+#     INPUT_QUEUE_NAME="InputQueue"
+#     OUTPUT_QUEUE_NAME="OutputQueue"
 
-    MESSAGE_ATTRIBUTES=['ImageName','UID']
+#     MESSAGE_ATTRIBUTES=['ImageName','UID']
 
-    sqs = boto3.resource("sqs",region_name=AWS_REGION, aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
-    input_queue = sqs.get_queue_by_name(QueueName=INPUT_QUEUE_NAME)
-    output_queue = sqs.get_queue_by_name(QueueName=OUTPUT_QUEUE_NAME)
+#     sqs = boto3.resource("sqs",region_name=AWS_REGION, aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+#     input_queue = sqs.get_queue_by_name(QueueName=INPUT_QUEUE_NAME)
+#     output_queue = sqs.get_queue_by_name(QueueName=OUTPUT_QUEUE_NAME)
 
-    signal_handler = SignalHandler()
-    while not signal_handler.received_signal:
+#     signal_handler = SignalHandler()
+#     while not signal_handler.received_signal:
 
-        messages = output_queue.receive_messages(MaxNumberOfMessages=10, WaitTimeSeconds=10, MessageAttributeNames=MESSAGE_ATTRIBUTES)
-        for message in messages:
-            try:
-                result=process_message(message)
-            except Exception as e:
-                print(f"exception while processing message: {repr(e)}")
-                continue
+#         messages = output_queue.receive_messages(MaxNumberOfMessages=10, WaitTimeSeconds=10, MessageAttributeNames=MESSAGE_ATTRIBUTES)
+#         for message in messages:
+#             try:
+#                 result=process_message(message)
+#             except Exception as e:
+#                 print(f"exception while processing message: {repr(e)}")
+#                 continue
             
-            try:
-                message.delete()
-            except Exception as e:
-                print(f"exception while deleting message: {repr(e)}")
-                continue
+#             try:
+#                 message.delete()
+#             except Exception as e:
+#                 print(f"exception while deleting message: {repr(e)}")
+#                 continue
