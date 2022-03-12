@@ -2,6 +2,7 @@ import sys
 import requests
 import os
 import argparse
+import time
 
 parser = argparse.ArgumentParser(description='Upload images')
 parser.add_argument('--num_request', type=int, help='one image per request')
@@ -22,11 +23,17 @@ def send_one_request(url, image_path):
         print(msg)
 
 num_request = args.num_request
-url = "http://127.0.0.1:5000/"
+url = "http://54.166.3.222:5000/"
 image_folder = "face_images_100/"
 # Iterate through all the images in your local folder
+print("Start... ",time.time() * 1000)
+start=time.time() * 1000
 for i, name in enumerate(os.listdir(image_folder)):
     if i == num_request:
         break
     image_path = image_folder + name
     send_one_request(url, image_path)
+
+print("End... ",time.time() * 1000)
+end=time.time() * 1000
+print(end-start)
