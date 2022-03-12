@@ -38,11 +38,14 @@ def process_message(message):
     #TO DO
     #Call face_recognition.py for result and store in 'name'
     im = Image.open(BytesIO(base64.b64decode(message.body)))
-    im.save("face_images_100/" + image_name)
-    output = subprocess.run(["python3", "face_recognition.py", "face_images_100/" + image_name], capture_output=True)
-    #label = output.stdout.decode("utf-8").rstrip("\n")
-    #name = label if label else 'Paul' #Default - NEED TO CHANGE
-    name='Paul'
+    im.save("request_images/" + image_name)
+    output = subprocess.run(["python3", "face_recognition.py", "request_images/" + image_name], capture_output=True)
+    label = output.stdout.decode("utf-8").rstrip("\n")
+    print(label)
+    name = label if label else 'Paul' #Default - NEED TO CHANGE
+    os.system("rm request_images/" + image_name)
+
+    #name='Paul'
 
     #TO DO
     #Store images in S3 Input and Output Buckets
@@ -101,8 +104,10 @@ if __name__ == "__main__":
         #send_queue_metrics(queue)
         #send_queue_metrics(dlq)
         #
+        #print("Next msg...")
 
         messages = input_queue.receive_messages(MaxNumberOfMessages=10, WaitTimeSeconds=10, MessageAttributeNames=MESSAGE_ATTRIBUTES)
+        #print("Messages...",messages)
         for message in messages:
             try:
                 result=process_message(message)

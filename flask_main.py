@@ -54,46 +54,5 @@ def readImageFile():
 
 
     return "Req received; Msg sent to SQS; ID:" + str(response.get('MessageId')) + ": UID: " + msg_uuid + ": Final Result Label: " + result
-
-
-    """
-        #send_client = boto3.client("sqs",region_name=AWS_REGION, aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
-
-        #queue = send_client.get_queue_by_name(QueueName=OUTPUT_QUEUE_NAME)
-        #QueueUrl = "https://sqs.us-east-1.amazonaws.com/763815825458/AlekhyaFirstQueue"
-
-        response = send_client.send_message(Entries=[
-            {
-                'Id': msg_uuid,
-                'MessageBody': encoded_string,
-                'MessageAttributes': {
-                    'ImageName': {
-                        'StringValue': uploaded_file.filename,
-                        'DataType': 'String'
-                    },
-                    'UID': {
-                        'StringValue': msg_uuid,
-                        'DataType': 'String'
-                    }
-                }
-            }
-        ])
-        
-        response = send_client.send_message(
-            QueueUrl=QueueUrl,
-            DelaySeconds=10,
-            MessageAttributes={
-                'ImageName': {
-                    'StringValue': uploaded_file.filename,
-                    'DataType': 'String'
-                },
-                'UID': {
-                    'StringValue': msg_uuid,
-                    'DataType': 'String'
-                }
-            },
-            MessageBody=encoded_string
-        )
-        """
         
 
